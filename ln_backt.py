@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
+####################
+#--Script transforms the constraints in cell basis to the constraints in (x,y) basis 
+#accounting for outliers
+#--how to launch: python3.10 ln_backt.py
+####################
 
 from pandas import *
 import numpy as np
