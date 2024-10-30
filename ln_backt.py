@@ -1,35 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from __future__ import print_function
 from pandas import *
 import numpy as np
-import sys,re
-
 import tifffile as tf
-import pickle as pic
 import xml.etree.ElementTree as et
+import pickle
 
-from skimage.transform import resize
-from matplotlib import pyplot as plt
-import matplotlib
 import deepcell
 from deepcell.utils.plot_utils import create_rgb_image,make_outline_overlay
 from deepcell_toolbox.processing import histogram_normalization
 from deepcell.utils.transform_utils import inner_distance_transform_2d
-
-import pickle
 from deepcell.applications import Mesmer
 
-import pickle
-
-#################################
-#regexps
-stn=re.compile('\d+')
-dd=re.compile('[-]?\d+[.]\d+')
-fnc=re.compile('\w+[.]\w+')
-fn=re.compile('\w+')
-#####################################################
 
 tif=tf.TiffFile('FF_AITL_3524.qptiff')
 page=tif.pages[0]
@@ -40,17 +23,20 @@ for page in tif.series[0].pages:
   biomarker_list.append(tmp_marker)
 
 nump=1000
+numm=26
+dnp=nump*nump
+#--different regions of the tissue
+#--getting the response for the nucleus
 nuclear_imgf=tif.series[0].pages[biomarker_list.index('DAPI')].asarray()
 #nuclear_img=nuclear_imgf[4400:5400,14500:15500]
 #nuclear_img=nuclear_imgf[5200:6200,13700:14700]
 #nuclear_img=nuclear_imgf[6000:7000,16000:17000]
 #nuclear_img=nuclear_imgf[6000:7000,20000:21000]
-#another patient
-#R5
+#--another patient
 #nuclear_img=nuclear_imgf[26500:27500,21700:22700]
-#R6
 nuclear_img=nuclear_imgf[27000:28000,20600:21600]
 
+#--getting the response for the membrane
 mem_imgf=tif.series[0].pages[biomarker_list.index('CD45RO')].asarray()
 #mem_img=mem_imgf[4400:5400,14500:15500]
 #mem_img=mem_imgf[5200:6200,13700:14700]
@@ -63,20 +49,23 @@ codex_img=np.stack([nuclear_img,mem_img],axis=2)
 codex_img=np.expand_dims(codex_img,axis=0)
 codex_img=histogram_normalization(codex_img)
 
-#cell segmentation
+#--cell segmentation
 app=Mesmer()
 segmentation_predictions_nuc=app.predict(codex_img,image_mpp=0.5,compartment='nuclear')
 seg=DataFrame(segmentation_predictions_nuc[0,0:nump,0:nump,0])
+
+#--getting the number of cells
 print(seg.shape)
 numcells=np.max(seg)-1
 print(numcells)
-numm=26
-dnp=nump*nump
+
+#--reading the file with the constraints in the cell basis
 file_gs="tumor6_segcell_max_constraints_L.xlsx"
 gs = read_excel(file_gs,header=0,index_col=0)
 gsm=gs.to_numpy()
 print(gsm.shape)
-#remove outliers in the constraints
+
+#--remove outliers in the constraints
 for i in range(numm):
     meanv=np.mean(gsm[:,i])
     stdv=np.std(gsm[:,i])
@@ -86,10 +75,10 @@ for i in range(numm):
     for j in range(numcells):
       if (gsm[j,i] > thrp or gsm[j,i] < thrm):
         gsm[j,i]=20
-
+        
+#--foreach constraint    
+#--map cell into xy position
 gs_grid=np.zeros((dnp,numm))
-#foreach constraint    
-#map cell into xy position
 l=0
 for i in range(nump):
   for j in range(nump):
@@ -99,6 +88,7 @@ for i in range(nump):
       for q in range(numm):
         gs_grid[l,q]=gsm[k,q]
    else:
+     #--outliers
       for q in range(numm):
         gs_grid[l,q]=20
    l=l+1
