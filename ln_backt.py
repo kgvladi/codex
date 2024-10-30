@@ -6,6 +6,7 @@ import numpy as np
 import tifffile as tf
 import xml.etree.ElementTree as et
 import pickle
+from __future__ import print_function
 
 import deepcell
 from deepcell.utils.plot_utils import create_rgb_image,make_outline_overlay
@@ -68,8 +69,8 @@ for i in range(numm):
 #--map cell into xy position
 gs_grid=np.zeros((dnp,numm))
 l=0
-for i in range(nump):
-  for j in range(nump):
+for i in range(numpx):
+  for j in range(numpy):
    if (seg.at[i,j] != 0):       
     for k in range(numcells):
      if (seg.at[i,j] == k+1 ):
