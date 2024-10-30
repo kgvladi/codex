@@ -8,7 +8,7 @@
 from pandas import *
 import numpy as np
 
-#functions for svd 
+#--functions for svd 
 def A_times_Atranspose(df):
     transpos = np.transpose(df)
     A_times_Atranspose = np.dot(df, transpos)
@@ -18,10 +18,9 @@ def At_times_A(df):
     At_times_A = np.dot(transpos,df)
     return At_times_A
 #################################################
-#biomarkers list in a specific order
+#--biomarkers list in a specific order
 markers=[]
 markers.append('DAPI')
-#markers.append('EpCAM')
 markers.append('ICOS')
 markers.append('Ki67')
 markers.append('CD4')
@@ -47,15 +46,15 @@ markers.append('CD45RO')
 markers.append('CD141')
 markers.append('CD14')
 markers.append('CD44')
-#getting dimensions
-#number of biomarkers
+#--getting dimensions
+#--number of biomarkers
 numm=len(markers)
 file='ICOS_tumor23_segcell_max.xlsx'
 datam = read_excel(file,header=0,index_col=0)
 datam=datam.drop(index=0)
-#number of cells
+#--number of cells
 numcells=len(datam.index)
-#reading prepared data files for each marker and stacking columns
+#--reading prepared data files for each marker and stacking columns
 data=np.zeros((numcells,numm))
 l=0
 check=0
@@ -69,8 +68,8 @@ for i in range(numm):
 push=DataFrame(data,index=datam.index,columns=markers)
 file='tumor23_segcell_max_data.xlsx'
 push.to_excel(file)     
-############################################
-#count the number of zeroes
+
+#---count the number of zeroes
 nzeros=np.zeros((numm,1))
 for i in range(numm):
   for j in range(numcells):
@@ -79,7 +78,7 @@ for i in range(numm):
 nz=DataFrame(nzeros, push.columns)  
 outputfile="tumor23_segcell_max_nzeros.xlsx"
 nz.to_excel(outputfile)
-#replace zeros with a random number
+#--replace zeros with a random number
 rng=np.random.default_rng()
 for i in range(numm):
   for j in range(numcells):
@@ -91,12 +90,12 @@ for i in range(numm):
          push.values[j,i]=np.exp(-k)
          
 sur=np.zeros((numcells,numm))
-#go to surprisal
+#--go to surprisal
 for i in range(numcells):
  for j in range(numm):
    k=np.float64(push.values[i,j])
    sur[i,j]=-np.log(k)
-#do svd
+#--do svd
 dot_p = At_times_A(sur)
 eigenvaluesp, eigenvectorsp = np.linalg.eigh(dot_p, UPLO="L")
 eigenvectorsg=np.matmul(sur,eigenvectorsp)
