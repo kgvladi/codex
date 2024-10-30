@@ -13,7 +13,6 @@ from deepcell_toolbox.processing import histogram_normalization
 from deepcell.utils.transform_utils import inner_distance_transform_2d
 from deepcell.applications import Mesmer
 
-
 tif=tf.TiffFile('FF_AITL_3524.qptiff')
 page=tif.pages[0]
 series=tif.series[0]
@@ -22,42 +21,31 @@ for page in tif.series[0].pages:
   tmp_marker=et.fromstring(page.description).find('Biomarker').text
   biomarker_list.append(tmp_marker)
 
-nump=1000
+n1=4600
+n2=5200
+n3=17000
+n4=18000
+numpx=n2-n1
+numpy=n4-n3
+dnp=numpx*numpy
 numm=26
-dnp=nump*nump
-#--different regions of the tissue
-#--getting the response for the nucleus
-nuclear_imgf=tif.series[0].pages[biomarker_list.index('DAPI')].asarray()
-#nuclear_img=nuclear_imgf[4400:5400,14500:15500]
-#nuclear_img=nuclear_imgf[5200:6200,13700:14700]
-#nuclear_img=nuclear_imgf[6000:7000,16000:17000]
-#nuclear_img=nuclear_imgf[6000:7000,20000:21000]
-#--another patient
-#nuclear_img=nuclear_imgf[26500:27500,21700:22700]
-nuclear_img=nuclear_imgf[27000:28000,20600:21600]
 
-#--getting the response for the membrane
+nuclear_imgf=tif.series[0].pages[biomarker_list.index('DAPI')].asarray()
+nuclear_img=nuclear_imgf[n1:n2,n3:n4]
 mem_imgf=tif.series[0].pages[biomarker_list.index('CD45RO')].asarray()
-#mem_img=mem_imgf[4400:5400,14500:15500]
-#mem_img=mem_imgf[5200:6200,13700:14700]
-#mem_img=mem_imgf[6000:7000,16000:17000]
-#mem_img=mem_imgf[6000:7000,20000:21000]
-#mem_img=mem_imgf[26500:27500,21700:22700]
-mem_img=mem_imgf[27000:28000,20600:21600]
+mem_img=mem_imgf[n1:n2,n3:n4]
+
+marker_imgf=tif.series[0].pages[biomarker_list.index(marker)].asarray()
+marker_img=marker_imgf[n1:n2,n3:n4]
 
 codex_img=np.stack([nuclear_img,mem_img],axis=2)
 codex_img=np.expand_dims(codex_img,axis=0)
 codex_img=histogram_normalization(codex_img)
 
-#--cell segmentation
 app=Mesmer()
 segmentation_predictions_nuc=app.predict(codex_img,image_mpp=0.5,compartment='nuclear')
-seg=DataFrame(segmentation_predictions_nuc[0,0:nump,0:nump,0])
-
-#--getting the number of cells
-print(seg.shape)
-numcells=np.max(seg)-1
-print(numcells)
+seg=DataFrame(segmentation_predictions_nuc[0,0:numpx,0:numpy,0])
+numcells=np.max(seg)
 
 #--reading the file with the constraints in the cell basis
 file_gs="tumor6_segcell_max_constraints_L.xlsx"
