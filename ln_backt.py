@@ -36,6 +36,7 @@ n4=18000
 numpx=n2-n1
 numpy=n4-n3
 dnp=numpx*numpy
+#number of the contraints
 numm=26
 
 #--extracting the nucleus 
