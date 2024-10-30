@@ -21,7 +21,7 @@ from deepcell_toolbox.processing import histogram_normalization
 from deepcell.utils.transform_utils import inner_distance_transform_2d
 from deepcell.applications import Mesmer
 
-#biomarker for which the transformation is done
+#--biomarker for which the transformation is done
 marker=str(sys.argv[1])
 
 #--reading the original CODEX file 
@@ -60,7 +60,7 @@ app=Mesmer()
 segmentation_predictions_nuc=app.predict(codex_img,image_mpp=0.5,compartment='nuclear')
 seg=DataFrame(segmentation_predictions_nuc[0,0:numpx,0:numpy,0])
 numcells=np.max(seg)
-#actual mapping
+#--actual mapping
 index_cells=[]
 dataf=np.zeros((numcells,1))
 for k in range(numcells):
