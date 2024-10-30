@@ -1,6 +1,6 @@
 # codex
 Extracting characteristic features for hi-res images of cancer tissues
-<br/> **ln_seg_pat.py**:
+<br/> **ln_seg_cell.py**:
 <br/>   -> reads the original CODEX data file with tiff hi-res images of the biomarkers response
 <br/>   -> takes a small region in (x,y) coordinates and performs cell segmentation
 <br/>   -> for each marker makes a new vector with maximal value of the response in each cell
