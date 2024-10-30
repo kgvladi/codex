@@ -14,6 +14,7 @@ from deepcell_toolbox.processing import histogram_normalization
 from deepcell.utils.transform_utils import inner_distance_transform_2d
 from deepcell.applications import Mesmer
 
+#--reading the original CODEX file
 tif=tf.TiffFile('FF_AITL_3524.qptiff')
 page=tif.pages[0]
 series=tif.series[0]
@@ -21,7 +22,8 @@ biomarker_list=[]
 for page in tif.series[0].pages:
   tmp_marker=et.fromstring(page.description).find('Biomarker').text
   biomarker_list.append(tmp_marker)
-
+  
+#--selecting initial (x,y) region of the tissue
 n1=4600
 n2=5200
 n3=17000
@@ -31,18 +33,18 @@ numpy=n4-n3
 dnp=numpx*numpy
 numm=26
 
+#--extracting the nucleus 
 nuclear_imgf=tif.series[0].pages[biomarker_list.index('DAPI')].asarray()
 nuclear_img=nuclear_imgf[n1:n2,n3:n4]
+#--extracting the membrane
 mem_imgf=tif.series[0].pages[biomarker_list.index('CD45RO')].asarray()
 mem_img=mem_imgf[n1:n2,n3:n4]
-
-marker_imgf=tif.series[0].pages[biomarker_list.index(marker)].asarray()
-marker_img=marker_imgf[n1:n2,n3:n4]
 
 codex_img=np.stack([nuclear_img,mem_img],axis=2)
 codex_img=np.expand_dims(codex_img,axis=0)
 codex_img=histogram_normalization(codex_img)
 
+#--cell segmentation
 app=Mesmer()
 segmentation_predictions_nuc=app.predict(codex_img,image_mpp=0.5,compartment='nuclear')
 seg=DataFrame(segmentation_predictions_nuc[0,0:numpx,0:numpy,0])
