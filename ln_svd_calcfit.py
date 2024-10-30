@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-#import matplotlib.pyplot as plt
+##################
+#--Script computes the fit for the data via finite number of constraints, up to numc
+#--how to launch: python3.10 ln_svd_calcfit.py
+##################
 from __future__ import print_function
 from pandas import *
 import numpy as np
 import sys,re
 
-
+numc=12
 markers=[]
 markers.append('DAPI')
-#markers.append('EpCAM')
 markers.append('ICOS')
 markers.append('Ki67')
 markers.append('CD4')
@@ -67,12 +68,12 @@ for sp in range(numm):
    lamg.sort_values(by='lambdas',axis=1,inplace=True,ascending=False,key=abs)
    lamf=lamg.to_numpy()
    #accuracy
-   #computation by 2 constraints
+   #computation by numc constraints
    #exp(-lambdas*G)
    err=np.zeros((numm,dnp))
    for j in range(dnp):
      k1=0
-     for qr in range(12):
+     for qr in range(numc):
       if (lamf[j+1,qr] != 20):
           k1=k1+lamf[0,qr]*lamf[j+1,qr]
           datafit=np.exp(-k1)
@@ -80,7 +81,7 @@ for sp in range(numm):
       else:
         err[qr,j]=0.0
 
-   for qr in range (12):
+   for qr in range (numc):
      file1='tumor6_segcell_max_corr_'+str(qr)+'_fit_'+sprotein+'.pkl'
      res1=DataFrame(err[qr,:],gs.index,columns=[sprotein])
      res1.to_pickle(file1) 
