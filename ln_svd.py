@@ -2,6 +2,7 @@
 # coding: utf-8
 ##############
 #Script performs svd for the dataset: computes lambdas (characteristic vectors) and constraints 
+#--howto launch: python3.10 ln_svd.py
 ##############
 
 from pandas import *
