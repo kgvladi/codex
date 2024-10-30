@@ -23,11 +23,6 @@ from deepcell.applications import Mesmer
 
 import pickle
 
-#import maxfuse as mf
-#import seaborn as sns
-#import anndata as ad
-#import scanpy as sc
-#import errno
 #################################
 #regexps
 stn=re.compile('\d+')
@@ -35,9 +30,6 @@ dd=re.compile('[-]?\d+[.]\d+')
 fnc=re.compile('\w+[.]\w+')
 fn=re.compile('\w+')
 #####################################################
-#
-#
-#marker=str(sys.argv[1])
 
 tif=tf.TiffFile('FF_AITL_3524.qptiff')
 page=tif.pages[0]
@@ -71,12 +63,11 @@ codex_img=np.stack([nuclear_img,mem_img],axis=2)
 codex_img=np.expand_dims(codex_img,axis=0)
 codex_img=histogram_normalization(codex_img)
 
+#cell segmentation
 app=Mesmer()
 segmentation_predictions_nuc=app.predict(codex_img,image_mpp=0.5,compartment='nuclear')
 seg=DataFrame(segmentation_predictions_nuc[0,0:nump,0:nump,0])
 print(seg.shape)
-#file='tumor4_segmentation_mask.xlsx'
-#seg.to_excel(file)
 numcells=np.max(seg)-1
 print(numcells)
 numm=26
@@ -85,6 +76,7 @@ file_gs="tumor6_segcell_max_constraints_L.xlsx"
 gs = read_excel(file_gs,header=0,index_col=0)
 gsm=gs.to_numpy()
 print(gsm.shape)
+#remove outliers in the constraints
 for i in range(numm):
     meanv=np.mean(gsm[:,i])
     stdv=np.std(gsm[:,i])
@@ -95,7 +87,6 @@ for i in range(numm):
       if (gsm[j,i] > thrp or gsm[j,i] < thrm):
         gsm[j,i]=20
 
-   
 gs_grid=np.zeros((dnp,numm))
 #foreach constraint    
 #map cell into xy position
