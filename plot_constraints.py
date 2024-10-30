@@ -52,10 +52,10 @@ codex_img=histogram_normalization(codex_img)
 app=Mesmer()
 segmentation_predictions_nuc=app.predict(codex_img,image_mpp=0.5,compartment='nuclear')
 
-#reading the file with the constraints in (x,y) basis
+#--reading the file with the constraints in (x,y) basis
 dataf = read_pickle('tumor6_segcell_max_constraints_grid_corr.pkl')
 nc=len(dataf.columns)
-#plotting
+#--plotting
 matplotlib.rcParams['font.size']=22.0
 fig,axs=plt.subplots(3,3,sharex='all',sharey='all',figsize=(20,20))
 k=0
